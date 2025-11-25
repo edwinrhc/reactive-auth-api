@@ -20,41 +20,35 @@ public class JwtAuthenticationFilter implements WebFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
-
     @Autowired
     private UserRepository userRepository;
-
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-        String authHeader = exchange.getRequest()
-                .getHeaders()
-                .getFirst(HttpHeaders.AUTHORIZATION);
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        // Si no hay token, continuar
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return chain.filter(exchange);
         }
 
         String token = authHeader.substring(7);
-        String email;
 
+        String email;
         try {
             email = jwtUtil.getEmail(token);
         } catch (Exception e) {
-            return chain.filter(exchange); // token inválido
+            return chain.filter(exchange); // token inválido → sigue sin auth
         }
 
-        String  role = jwtUtil.getRole(token);
+        String role = jwtUtil.getRole(token);
 
-        // Buscar usuario reactivo
         return userRepository.findByEmail(email)
                 .flatMap(user -> {
                     UserDetails userDetails = User.builder()
                             .username(user.getEmail())
-                            .password("")
-                            .roles(role)
+                            .password("")                  // NO importa, no se usa aquí
+                            .roles(role)                   // agregar "ROLE_XXX"
                             .build();
 
                     Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -65,6 +59,7 @@ public class JwtAuthenticationFilter implements WebFilter {
 
                     return chain.filter(exchange)
                             .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
-                }).switchIfEmpty(chain.filter(exchange));
+                })
+                .switchIfEmpty(chain.filter(exchange));
     }
 }
