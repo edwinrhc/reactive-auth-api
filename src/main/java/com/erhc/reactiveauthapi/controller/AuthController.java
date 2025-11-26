@@ -5,6 +5,7 @@ import com.erhc.reactiveauthapi.entity.User;
 import com.erhc.reactiveauthapi.service.AuthService;
 import com.erhc.reactiveauthapi.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -14,13 +15,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
 
-    @Autowired
-    private UserService userService;
+    private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/register")
     public Mono<User> register(@Valid @RequestBody RegisterDTO dto){
