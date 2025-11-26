@@ -24,7 +24,7 @@ public class AuthService {
                     }
                     return Mono.just(jwt.generateToken(
                             user.getEmail(),
-                            user.getRole()));
+                            user.getRole().name()));
                 });
     }
 
