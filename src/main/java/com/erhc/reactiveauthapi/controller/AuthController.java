@@ -1,8 +1,10 @@
 package com.erhc.reactiveauthapi.controller;
 
+import com.erhc.reactiveauthapi.dto.RegisterDTO;
 import com.erhc.reactiveauthapi.entity.User;
 import com.erhc.reactiveauthapi.service.AuthService;
 import com.erhc.reactiveauthapi.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -21,8 +23,8 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/register")
-    public Mono<User> register(@RequestBody User user){
-        return userService.register(user);
+    public Mono<User> register(@Valid @RequestBody RegisterDTO dto){
+        return userService.register(dto);
     }
 
     @PostMapping("/login")
